@@ -1,0 +1,6 @@
+pipecat-ai[webrtc,daily,openai,silero,tracing,langfuse]
+uvicorn
+fastapi
+python-dotenv
+pipecatcloud
+pipecat_ai_small_webrtc_prebuilt
