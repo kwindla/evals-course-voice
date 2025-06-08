@@ -1,6 +1,8 @@
-pipecat-ai[webrtc,daily,openai,silero,tracing,langfuse]
+pipecat-ai[webrtc,daily,openai,deepgram,cartesia,silero,tracing]
 uvicorn
 fastapi
 python-dotenv
 pipecatcloud
 pipecat_ai_small_webrtc_prebuilt
+opentelemetry-exporter-otlp-proto-http
+

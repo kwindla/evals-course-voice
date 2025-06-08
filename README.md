@@ -8,9 +8,69 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## To run the bots locally
+
+```bash
+python 001-bot-simple.py
+```
+
+## Simple bot file (reference - no data storage)
+
+```bash
+python 001-bot-simple.py
+```
+
+## Bot with open telemetry tracing (Langfuse)
+
+To add open telemetry tracing, add these lines to the bot and set three environment variables.
+
+```bash
+$ diff 001-bot-simple.py 002-bot-otel.py
+45a46,48
+> from pipecat.utils.tracing.setup import setup_tracing
+> from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+> 
+47a51
+> 
+52a57,66
+> IS_TRACING_ENABLED = bool(os.getenv("ENABLE_TRACING"))
+> if IS_TRACING_ENABLED:
+>     otlp_exporter = OTLPSpanExporter()
+>     setup_tracing(
+>         service_name="evals-course-voice",
+>         exporter=otlp_exporter,
+>     )
+>     logger.info("OpenTelemetry tracing initialized")
+> 
+> 
+142a157
+>         enable_tracing=IS_TRACING_ENABLED,
+```
+
+Set these environment variables:
+
+```bash
+ENABLE_TRACING=true
+OTEL_EXPORTER_OTLP_ENDPOINT="https://us.cloud.langfuse.com/api/public/otel"
+OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic%20<base64 encoded public-key:secret-key>"
+```
+
+And run the bot with the otel tracing code..
+
+```bash
+python 002-bot-langfuse.py
+```
+
+Instructions for setting up Pipecat + Langfuse are here:
+
+  https://github.com/pipecat-ai/pipecat/blob/main/examples/open-telemetry/langfuse/README.md#setup-instructions
+
+
+
+
 ## Project plan
 
-[ ] simple voice bot
+[x] simple voice bot
 [ ] add langfuse tracing
 [ ] add sqlite storage for each turn
   [ ] turn text
