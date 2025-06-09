@@ -1,5 +1,26 @@
 # Put your voice conversation data somewhere (so you can look at it (and listen to it)).
 
+This repo shows how to save voice agent conversation data, building up in three steps:
+1. A simple bot that just logs to the console.
+2. A bot that also sends open telemetry traces to an otel collector.
+3. A bot that also saves conversation data to an sqlite db file, with some example, vibe-coded "look at the data" scripts.
+
+Pipecat `main` ships with five observability integrations today. In alphabetical order:
+  - Coval
+  - Datadog
+  - Freeplay
+  - Open Telemetry (thanks to the teams at NVIDIA and Langfuse for work on Open Telemetry in Pipecat)
+  - W&B Weave
+
+But you can also build your own! This repo shows one way to do that.
+
+## A note on models used, here
+
+The bot files here use Deepgram for realtime transcription, OpenAI GTP-4o for the LLM, and Cartesia for voice generation. This is a very common production voice AI stack. I wanted these bots to be simple versions of code you would actually use in production.
+
+You can swap out other models. See the [Pipecat docs](https://docs.pipecat.ai/) and [single-file examples](https://github.com/pipecat-ai/pipecat/tree/main/examples/foundational) for more info.
+
+
 ## Setup
 
 ```bash
@@ -7,6 +28,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Now copy the `env.example` file to `.env` and fill in the values for the Deepgram, OpenAI, and Cartesia API key environment variables.
 
 ## To run the bots locally
 
