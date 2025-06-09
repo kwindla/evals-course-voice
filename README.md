@@ -10,6 +10,8 @@ pip install -r requirements.txt
 
 ## To run the bots locally
 
+The first time you run the bot, it will take a few seconds to cache the Silero VAD model. Subsequent runs will start quickly.
+
 ```bash
 python 001-bot-simple.py
 ```
@@ -22,7 +24,7 @@ python 001-bot-simple.py
 
 ## Bot with open telemetry tracing (Langfuse)
 
-To add open telemetry tracing, add these lines to the bot and set three environment variables.
+We can add open telemetry tracing with just a few lines of code. `002-bot-otel.py` demonstrates this.
 
 ```bash
 $ diff 001-bot-simple.py 002-bot-otel.py
@@ -47,7 +49,7 @@ $ diff 001-bot-simple.py 002-bot-otel.py
 >         enable_tracing=IS_TRACING_ENABLED,
 ```
 
-Set these environment variables:
+I set these environment variables to send the otel traces to Langfuse. 
 
 ```bash
 ENABLE_TRACING=true
@@ -55,7 +57,7 @@ OTEL_EXPORTER_OTLP_ENDPOINT="https://us.cloud.langfuse.com/api/public/otel"
 OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic%20<base64 encoded public-key:secret-key>"
 ```
 
-And run the bot with the otel tracing code..
+Run the bot and the look at the traces using your otel tooling of choice.
 
 ```bash
 python 002-bot-langfuse.py
@@ -67,9 +69,9 @@ Instructions for setting up Pipecat + Langfuse are here:
 
 ## Bot that saves turn data to sqlite
 
-For each conversation turn, we'll save information about what the user and bot said, plus some timing data, in a sqlite database.
+`003-bot-sqlite.py` shows how you might write code that saves conversation turn text and metrics using sqlite, and also saves the full conversation audio.
 
-Here's how we create the database file.
+Here's how we create the sqlite db file.
 
 ```bash
 sqlite3 db-and-recordings/conversation_turns.db "
@@ -85,24 +87,64 @@ CREATE TABLE IF NOT EXISTS conversation_turn (
 );"
 ```
 
-We'll also save the full audio of each conversation.
+We've also vibe-coded three example "look at the data" scripts.
+
+### analyze-conversations.py
+
+Prints out some basic stats about the conversations saved in the db file.
+
+```bash
+(venv) khkramer@toque evals-course-voice % python analyze_conversations.py list-sessions --show-percentiles
+Session ID                First Turn Start          Num Turns  P50 V2V (s)  P95 V2V (s)
+-----------------------------------------------------------------------------------------------
+1749447300-448            2025-06-08 22:35:00       2          0.710        0.744
+1749447318-995            2025-06-08 22:35:18       3          0.731        1.339
+1749447338-12             2025-06-08 22:35:38       1          0.679        0.679
+1749447349-494            2025-06-08 22:35:49       4          0.762        0.906
+1749447402-850            2025-06-08 22:36:44       1          0.672        0.672
+1749447408-394            2025-06-08 22:36:48       2          0.821        0.941
+1749447421-9              2025-06-08 22:37:01       5          0.725        1.160
+1749447559-573            2025-06-08 22:39:20       2          0.577        0.610
+1749447577-500            2025-06-08 22:39:39       1          0.677        0.677
+1749447583-771            2025-06-08 22:39:46       1          0.840        0.840
+1749447590-918            2025-06-08 22:39:50       3          0.801        0.811
+1749447618-597            2025-06-08 22:40:21       1          0.657        0.657
+1749447625-979            2025-06-08 22:40:25       2          0.832        0.926
+1749447640-426            2025-06-08 22:40:42       1          0.801        0.801
+1749447646-958            2025-06-08 22:40:49       1          0.988        0.988
+```
+
+### play_turn_audio.py
+
+Plays a single turn of audio from a session. We add some buffer time on the start and end to make it easier to hear the full turn context.
+
+```bash
+python play_turn_audio.py 1749447421-9 4
+Playing session 1749447421-9 turn 4 (20.94s - 31.92s)
+Playing db-and-recordings/conversation-1749447421-9.wav from 20.94s to 31.92s
+```
+
+### check_first_turn_greeting.py
+
+An example of the kind of quick evals you might hack together to test specific issues you find as you look at bot conversation data. In this case, we're checking to see if the bot always greets the user with the phrase that it is supposed to say. This is a real-world example. GPT-4o will sometimes explicitly refuse to say exact phrases or freelance a little bit by saying a phrase plus a bit more than it was asked to say.
+
+This script uses an LLM to check the assistant side of the first turn of every conversation in the sqlite db file.
+
+```bash
+python check_first_turn_greeting.py
+# ...
+Session: 1749450406-713
+First turn (LLM): I'm here and ready to help! What can I do for you today?
+Result: NOT EXACT
+----------------------------------------
+100%|███████████████████████████████████████████████████| 21/21 [00:10<00:00,  2.06it/s]
+
+Summary:
+Total tested: 21
+Correct (EXACT): 20
+Incorrect (NOT EXACT): 1
+Percentage correct: 95.2%
+```
 
 
-
-
-
-
-
-## Project plan
-
-[x] simple voice bot
-[x] add langfuse tracing
-[ ] add sqlite storage for each turn
-  [ ] turn text
-  [ ] turn audio
-  [ ] turn timing data
-[ ] simple evals
-  [ ] P50 and P95 voice-to-voice
-  [ ] manually inject a flaw and use Gemini Pro to find it
-[ ] utility to play a turn
 
