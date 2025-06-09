@@ -4,5 +4,7 @@ fastapi
 python-dotenv
 pipecatcloud
 pipecat_ai_small_webrtc_prebuilt
+pyaudio
 opentelemetry-exporter-otlp-proto-http
+
 

@@ -1,0 +1,5 @@
+# Ignore SQLite database files
+*.db
+
+# Ignore audio files
+*.wav

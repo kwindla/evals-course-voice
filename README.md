@@ -65,13 +65,38 @@ Instructions for setting up Pipecat + Langfuse are here:
 
   https://github.com/pipecat-ai/pipecat/blob/main/examples/open-telemetry/langfuse/README.md#setup-instructions
 
+## Bot that saves turn data to sqlite
+
+For each conversation turn, we'll save information about what the user and bot said, plus some timing data, in a sqlite database.
+
+Here's how we create the database file.
+
+```bash
+sqlite3 db-and-recordings/conversation_turns.db "
+CREATE TABLE IF NOT EXISTS conversation_turn (
+  session_id TEXT NOT NULL,
+  turn_number INTEGER NOT NULL,
+  turn_start_time REAL NOT NULL,  -- seconds since Unix epoch, as returned by time.time()
+  turn_end_time REAL NOT NULL,    -- seconds since Unix epoch, as returned by time.time()
+  user_speech_text TEXT,
+  llm_response_text TEXT,
+  voice_to_voice_response_time REAL,
+  interrupted BOOLEAN NOT NULL
+);"
+```
+
+We'll also save the full audio of each conversation.
+
+
+
+
 
 
 
 ## Project plan
 
 [x] simple voice bot
-[ ] add langfuse tracing
+[x] add langfuse tracing
 [ ] add sqlite storage for each turn
   [ ] turn text
   [ ] turn audio
